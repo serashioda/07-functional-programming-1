@@ -6,46 +6,37 @@ function Article (opts) {
   }
 }
 
-Article.all = [];
+Article.allArticles = [];
 
 Article.prototype.toHtml = function(scriptTemplateId) {
-  var template = Handlebars.compile(scriptTemplateId.html());
-
+  var template = Handlebars.compile($(scriptTemplateId).text());
   this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
-  this.publishStatus = this.publishedOn ? 'published ' + this.daysAgo + ' days ago' : '(draft)';
+  if(this.daysAgo < 1) {
+    this.publishStatus = '(published today)';
+  } else {
+    this.publishStatus = this.publishedOn ? 'published ' + this.daysAgo + ' days ago' : '(draft)';
+  }
   this.body = marked(this.body);
-
   return template(this);
 };
 
 Article.loadAll = function(dataWePassIn) {
+  /* NOTE: the original forEach code should be refactored
+     using `.map()` -  since what we are trying to accomplish is the
+     transformation of one collection into another. */
   dataWePassIn.sort(function(a,b) {
     return (new Date(b.publishedOn)) - (new Date(a.publishedOn));
-  });
-
-  /* DONE: the original forEach code below has been refactored
-     using `.map()` -  since what we are trying to accomplish is the
-     transformation of one colleciton into another.
-
-     dataWePassIn.forEach(function(ele) {
-      Article.all.push(new Article(ele));
-     }) */
-  Article.all = dataWePassIn.map(function(ele) {
-    return new Article(ele);
+  }).forEach(function(ele) {
+    Article.allArticles.push(new Article(ele));
   });
 };
 
-// This function will retrieve the data from either a local or remote source,
-// and process it, then hand off control to the View.
-
 /* TODO: Refactoring the Article.fetchAll method, it now accepts a parameter
-    called 'next' ('next' is just a placeholder, but when referenced at
-    the time fetchAll is called it will be a 'view' function) that will
-    execute once the loading of articles is done. We do this because
+    that will execute once the loading of articles is done. We do this because
     we might want to call other view functions, and not just initIndexPage();
     Now instead of calling articleView.initIndexPage(), we can call
     whatever we pass in! */
-Article.fetchAll = function(next) {
+Article.fetchAll = function() {
   if (localStorage.hackerIpsum) {
     $.ajax({
       type: 'HEAD',
@@ -54,33 +45,33 @@ Article.fetchAll = function(next) {
         var eTag = xhr.getResponseHeader('eTag');
         if (!localStorage.eTag || eTag !== localStorage.eTag) {
           localStorage.eTag = eTag;
-          Article.getAll(); //TODO: pass 'next' into getAll();
+          Article.getAll(); //TODO: pass 'nextFunction' into getAll();
         } else {
           Article.loadAll(JSON.parse(localStorage.hackerIpsum));
-          // TODO: Replace the following line with 'next' and call next instead.
-          articleView.initIndexPage();
+          // TODO: Replace the following line with 'nextFunction' and invoke it!
+          articleView.renderIndexPage();
         }
       }
     });
   } else {
-    Article.getAll(); // TODO: pass 'next' into getAll();
+    Article.getAll(); // TODO: pass 'nextFunction' into getAll();
   }
 };
 
-Article.getAll = function(next) {
+Article.getAll = function(nextFunction) {
   $.getJSON('/data/hackerIpsum.json', function(responseData) {
     Article.loadAll(responseData);
     localStorage.hackerIpsum = JSON.stringify(responseData);
-    // TODO: call next!
+    // TODO: invoke nextFunction!
   });
 };
 
 /* TODO: Chain together a `map` and a `reduce` call to get a rough count of
     all words in all articles. */
 Article.numWordsAll = function() {
-  return Article.all.map(function(article) {
+  return Article.allArticles.map(function(article) {
       //DONE: Grab the word count from each article body.
-    return article.body.match(/\b\w+/g).length;
+    return article.body.match(/\w+/g).length;
   })
   .reduce(function(a, b) {
     // return (TODO: Sum up all the values!)
