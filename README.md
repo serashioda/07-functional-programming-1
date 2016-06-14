@@ -20,6 +20,6 @@ Today there are many TODO items, but they are (mostly) smaller bites.
 1. Use chained map/reduce calls to transform the data into what you need it to be.  
 
 
-# User Stories: Stretch Goals
+## Stretch Goals:
 - What statistical analysis would be of interest to you with this data set? Code it up!  
 
