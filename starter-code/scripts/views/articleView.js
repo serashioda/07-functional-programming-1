@@ -1,6 +1,5 @@
 // NOTE: Let's wrap the entire contents of this file in an IIFE.
 // Pass in to the IIFE a module, upon which objects can be attached for later access.
-(function(module) {
 
   // Configure a view object, to hold all our functions for dynamic updates and article-related event handlers.
   var articleView = {};
@@ -59,7 +58,7 @@
   };
 
   articleView.renderIndexPage = function() {
-    Article.allArticles.forEach(function(a){
+    Article.allArticles.forEach(function(a) {
       if($('#category-filter option:contains("'+ a.category + '")').length === 0) {
         $('#category-filter').append(a.toHtml($('#category-filter-template')));
       };
@@ -73,8 +72,3 @@
     articleView.handleMainNav();
     articleView.setTeasers();
   };
-
-  Article.fetchAll(articleView.renderIndexPage);
-
-  module.articleView = articleView;
-})(window);

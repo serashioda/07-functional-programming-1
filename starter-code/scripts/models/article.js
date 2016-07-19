@@ -11,11 +11,7 @@ Article.allArticles = [];
 Article.prototype.toHtml = function(scriptTemplateId) {
   var template = Handlebars.compile($(scriptTemplateId).text());
   this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
-  if(this.daysAgo < 1) {
-    this.publishStatus = '(published today)';
-  } else {
-    this.publishStatus = this.publishedOn ? 'published ' + this.daysAgo + ' days ago' : '(draft)';
-  }
+  this.publishStatus = this.publishedOn ? 'published ' + this.daysAgo + ' days ago' : '(draft)';
   this.body = marked(this.body);
   return template(this);
 };
@@ -45,7 +41,7 @@ Article.fetchAll = function(nextFunction) {
         var eTag = xhr.getResponseHeader('eTag');
         if (!localStorage.eTag || eTag !== localStorage.eTag) {
           localStorage.eTag = eTag;
-          Article.getAll(); //TODO: pass 'nextFunction' into getAll();
+          Article.getAll(); //TODO: pass 'nextFunction' into Article.getAll();
         } else {
           Article.loadAll(JSON.parse(localStorage.hackerIpsum));
           // TODO: Replace the following line with 'nextFunction' and invoke it!
@@ -73,8 +69,8 @@ Article.numWordsAll = function() {
       //DONE: Grab the word count from each article body.
     return article.body.match(/\w+/g).length;
   })
-  .reduce(function(a, b) {
-    return a + b;
+  // TODO: complete this reduce to get a grand total word count
+  .reduce(function() {
   });
 };
 
@@ -93,7 +89,7 @@ Article.numWordsByAuthor = function() {
   /* TODO: Transform each author element into an object with 2 properties:
       One for the author's name, and one for the total number of words across
       the matching articles written by the specified author. */
-  return Article.allAuthors().map(function(author) { // 'author' is a reference to an individual author.
+  return Article.allAuthors().map(function(author) {
     return {
       // name:
       // numWords: someCollection.filter(function(curArticle) {
