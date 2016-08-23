@@ -89,7 +89,6 @@ Article.numWordsByAuthor = function() {
         name: currentAuthor,
         numWords: // someCollection.filter(function(curArticle) {
           // what do we return here to check for matching authors?
-        })
         // .map() to return the author's word count for each article body (you may split or regexp)
         // .reduce() to squash this array into one big number, per author.
       }
